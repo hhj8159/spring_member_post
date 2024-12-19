@@ -13,10 +13,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.context.annotation.SessionScope;
 
-import com.hjham.member_post.aop.MyPost;
-import com.hjham.member_post.aop.SigninCheck;
+import com.hjham.member_post.aop.annotation.MyPost;
+import com.hjham.member_post.aop.annotation.SigninCheck;
 import com.hjham.member_post.dto.Criteria;
 import com.hjham.member_post.dto.PageDto;
+import com.hjham.member_post.exception.UnsignedAuthException;
 import com.hjham.member_post.service.PostService;
 import com.hjham.member_post.vo.Member;
 import com.hjham.member_post.vo.Post;
@@ -57,6 +58,7 @@ public class PostController {
   public String postWrite(Post post, Criteria cri) {
     post.setCno(cri.getCategory());
     service.write(post);
+    log.info(post);
     return "redirect:list?" + cri.getQs2();
   }
 
@@ -66,15 +68,17 @@ public class PostController {
   @SessionAttribute(name = "member",required = false) Member member, String writer) {
     Post post = service.findBy(pno);
     if(member == null || !member.getId().equals(post.getWriter())) {
-      throw new RuntimeException("동일하지 않은 혹은 비로그인");
-    }    
+      throw new UnsignedAuthException("동일하지 않은 혹은 비로그인");
+    }
     model.addAttribute("post", post);
   }
   
   @PostMapping("modify")
-  @SigninCheck @MyPost
+  @MyPost
   public String postModify(Post post, Criteria cri) {
-    service.modify(post);
+    log.info(post);
+    log.info(cri);
+    // service.modify(post);
     return "redirect:list?" + cri.getQs();
   }
     

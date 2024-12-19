@@ -1,4 +1,4 @@
-package com.hjham.member_post.aop;
+package com.hjham.member_post.aop.aspect;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -10,6 +10,8 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
 
+import com.hjham.member_post.exception.NotMyPostException;
+import com.hjham.member_post.exception.UnsignedAuthException;
 import com.hjham.member_post.vo.Member;
 import com.hjham.member_post.vo.Post;
 
@@ -28,23 +30,6 @@ public class AuthAspect {
   private HttpServletRequest req;
   private HttpServletResponse resp;
 
-  @Before("@annotation(com.hjham.member_post.aop.MyPost)")
-  public void myPost(JoinPoint joinPoint, MyPost myPost) {
-    
-    Object o = session.getAttribute("member");
-    String id = ((Member) o).getId(); // 현재 로그인한 사용자
-
-    Object[] args = joinPoint.getArgs();
-    String writerParam = myPost.value();
-    log.info(Arrays.toString(args));
-    log.info(id);
-    log.info(writerParam);
-
-    // if(o == null || !((Member)o).getId().equals(post.getWriter())) {
-    //   throw new RuntimeException("본인 게시글 아님");
-    // }
-  }
-
   @Before("@annotation(com.hjham.member_post.aop.SigninCheck)")
   public void signinCheck(JoinPoint jp) throws IOException {
     log.info(req.getRequestURI());
@@ -55,4 +40,25 @@ public class AuthAspect {
       resp.sendRedirect("/msg?msg=" + URLEncoder.encode("로그인이 필요한 페이지 입니다.", "utf-8") + "&url=" + url);
     }
   }
+
+  @Before("@annotation(com.hjham.member_post.aop.MyPost)")
+  public void myPost(JoinPoint joinPoint) throws IOException {
+    
+    Object o = session.getAttribute("member");
+    if(o == null) {
+      throw new UnsignedAuthException("비로그인 상태");
+    }
+    String id = ((Member) o).getId(); // 현재 로그인한 사용자
+
+    Object[] args = joinPoint.getArgs();
+    for(Object obj : args) {
+      if(obj instanceof Post && !((Post)obj).getWriter().equals(id)) {
+          throw new NotMyPostException("본인 게시글 아님");        
+      }
+    }
+    log.error(Arrays.toString(args));
+    log.error(id);
+  }
+  
+  
 }

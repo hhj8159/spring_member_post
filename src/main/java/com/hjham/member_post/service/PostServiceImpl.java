@@ -27,7 +27,8 @@ public class PostServiceImpl implements PostService{
 	
 	@Override
 	public int write(Post post) {
-			mapper.insert(post);						
+			mapper.insert(post);
+
 			post.getAttachs().forEach(a -> {
 				a.setPno(post.getPno());
 				attachMapper.insert(a);
@@ -54,21 +55,21 @@ public class PostServiceImpl implements PostService{
 
 	@Override
 	public List<Post> list(Criteria cri) {
-			return mapper.selectList(cri);		
+		return mapper.selectList(cri);		
 	}
 	
 	@Override
 	public int count(Criteria cri) {
-			return mapper.getCount(cri);		
+		return mapper.getCount(cri);		
 	}
 
 	@Override
 	public Post view(Long pno) {		
-			mapper.increaseViewCount(pno);
-			Post post = mapper.selectOne(pno);
-			post.setAttachs(attachMapper.selectList(pno));
-			// post.setAttachs(attachMapper.selectList(pno));
-			return post;		
+		mapper.increaseViewCount(pno);
+		Post post = mapper.selectOne(pno);
+		post.setAttachs(attachMapper.selectList(pno));
+		// post.setAttachs(attachMapper.selectList(pno));
+		return post;		
 	}
 	
 }

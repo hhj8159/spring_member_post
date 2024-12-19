@@ -1,4 +1,4 @@
-package com.hjham.member_post.aop;
+package com.hjham.member_post.aop.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,6 +7,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface MyPost {
-  String value() default "";
+public @interface SigninCheck {
+  
 }

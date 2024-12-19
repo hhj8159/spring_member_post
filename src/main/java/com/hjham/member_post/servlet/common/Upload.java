@@ -23,7 +23,7 @@ import com.hjham.member_post.utils.Commons;
 import com.hjham.member_post.vo.Attach;
 
 
-// @WebServlet("/upload")
+@WebServlet("/upload")
 public class Upload extends HttpServlet{
 // 	@Override
 // 	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

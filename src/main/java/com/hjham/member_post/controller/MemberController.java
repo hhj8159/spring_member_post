@@ -70,10 +70,11 @@ public class MemberController {
   // public String postSignin(Member member, @Nullable @RequestParam("remember-id") String remember) {
   public String postSignin(
     Member member, @RequestParam(required = false, value = "remember-id") String remember,
-    HttpSession session, RedirectAttributes rttr, HttpServletResponse resp
+    HttpSession session, RedirectAttributes rttr, HttpServletResponse resp, @RequestParam(value="url", required=false) String url
   ) {
     log.info(remember);
     log.info(member);
+    log.info(url);
 
     if(service.login(member.getId(), member.getPw())) {
       // 성공
@@ -92,7 +93,11 @@ public class MemberController {
       resp.addCookie(cookie);
 
       // 2. redirect index
-      return "redirect:/";
+      String redirectUrl = "/";
+      if(url != null) {
+        redirectUrl = url;
+      }
+      return "redirect:" + redirectUrl;
     }
     else {
       // 쿠키 끄면 세션 작동 안함
